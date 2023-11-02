@@ -1,9 +1,6 @@
 import json
 from datetime import datetime as dt
 
-# empty list to store vehicle data
-vehicle_profiles = []
-
 REQUIRED_SCHEMA_FIELDS = {"license_plate", "make_model", "year", "color", "registered_date", "registered_name", "registered_address"}
 
 def check_schema(row, required_fields=REQUIRED_SCHEMA_FIELDS):
@@ -27,7 +24,7 @@ def parse_date(value, dtfmt="%Y-%m-%d"):
         return dt.strptime(value, dtfmt).date()
     except:
         return None
-
+profiles = []
 # open the JSON file for reading
 def json_read_and_transform(data_file):
     with open(data_file, "r") as json_file:
@@ -46,12 +43,18 @@ def json_read_and_transform(data_file):
             else:
                 row["registered_date"] = parse_date(row["registered_date"])
                 #print(f"{line_num:02d}: {row}")
-                vehicle_profiles.append(row)
+                profiles.append(row)
             line_num += 1
+        print(f"Read {len(profiles)} profiles")
+        return profiles
     
-    print(f"Read {len(vehicle_profiles)} profiles")
-
 #json_read_and_transform("./data/vehicles_simple.json")
 
-#def json_write_into_file(data_file):
-   # with open(data_file, "w") as json_file:
+def json_write_into_file(data_file):
+    for row in profiles:
+        row["registered_date"] = str(row["registered_date"])
+    with open(data_file, "w") as json_file:
+        json.dump(profiles, json_file, indent=4, skipkeys=True)
+    
+
+#json_write_into_file("./data/transformer.json")
